@@ -7,6 +7,9 @@ from pathlib import Path
 from datetime import datetime
 import json
 
+# 配置 HuggingFace 镜像（解决国内连接问题）
+os.environ['HF_ENDPOINT'] = os.getenv('HF_ENDPOINT', 'https://hf-mirror.com')
+
 # 添加 KernelBench 到路径
 kernelbench_path = os.path.join(os.path.dirname(__file__), '../../KernelBench')
 sys.path.insert(0, kernelbench_path)
