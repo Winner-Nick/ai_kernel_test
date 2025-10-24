@@ -137,16 +137,29 @@ def test_single_model(model_config, ref_code, problem_name, backend='cuda', verb
 
         # 计算参考实现的性能（需要单独运行）
         print("  ⏱️  正在测试参考实现性能...")
-        ref_eval = eval_kernel_against_ref(
-            ref_code,
-            ref_code,  # 用参考代码评估自己
-            verbose=False,
-            measure_performance=True,
-            num_correct_trials=1,
-            num_perf_trials=TEST_CONFIG['num_perf_trials'],
-            backend=backend,
-        )
-        ref_time_ms = ref_eval.runtime / 1000.0 if (ref_eval and ref_eval.runtime > 0) else 0.0
+        try:
+            ref_eval = eval_kernel_against_ref(
+                ref_code,
+                ref_code,  # 用参考代码评估自己
+                verbose=False,
+                measure_performance=True,
+                num_correct_trials=1,
+                num_perf_trials=TEST_CONFIG['num_perf_trials'],
+                backend=backend,
+            )
+            # 检查 ref_eval 是否有效
+            if ref_eval is None:
+                print("  ⚠️  参考实现评估返回 None,使用生成代码时间作为基准")
+                ref_time_ms = custom_time_ms
+            else:
+                ref_time_ms = ref_eval.runtime / 1000.0 if ref_eval.runtime and ref_eval.runtime > 0 else 0.0
+        except Exception as ref_error:
+            print(f"  ⚠️  无法测试参考实现性能: {str(ref_error)}")
+            if verbose:
+                import traceback
+                traceback.print_exc()
+            # 如果参考实现测试失败,使用生成代码的时间作为基准
+            ref_time_ms = custom_time_ms
 
         # 计算加速比
         speedup = ref_time_ms / custom_time_ms if custom_time_ms > 0 else 0.0

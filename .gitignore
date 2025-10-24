@@ -64,3 +64,8 @@ desktop.ini
 *.tmp
 *.temp
 *.bak
+
+# Documentation (optional, exclude generated guides)
+GIT_GUIDE.md
+DATASET_DOWNLOAD.md
+SERVER_SETUP.md
